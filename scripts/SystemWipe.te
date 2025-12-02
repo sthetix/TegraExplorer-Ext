@@ -1,5 +1,7 @@
 #REQUIRE KEYS
-is=["8000000000000120","8000000000000053","8000000000000000"]
+# Important saves that must be preserved to prevent bricking
+# Only these 3 saves should be preserved - DO NOT add more!
+is=["8000000000000120","80000000000000d1","8000000000000047"]
 p=println
 pr=print
 pe={pause() exit()}
@@ -48,20 +50,24 @@ y_pos = 12
 	print(line)
 }
 
-if (!fsexists("bis:/save/"+is[1]))
+if (!fsexists("bis:/save/"+is[0]))
 {
 	[
 		"",
-		"DeviceSettings save (8000000000000053) is missing!!!",
-		"This script cannot recover lost battery calibration data.",
-		"The system will initialize with default values.",
-		"These values are unsafe for lite systems!"
-	].foreach("line") 
+		"WARNING: Indexer save (8000000000000120) is missing!",
+		"Cannot safely wipe without this save!",
+		"System will brick if you continue!"
+	].foreach("line")
 	{
 		printpos(x_pos, y_pos)
 		y_pos = y_pos + 1
 		print(line)
 	}
+	y_pos = y_pos + 2
+	printpos(x_pos, y_pos)
+	print("Press any button to exit")
+	pause()
+	exit()
 }
 
 time = 5000
@@ -102,113 +108,17 @@ color(0xFF0000)
 pr("Deleting system saves... ")
 f=readdir("bis:/save")
 if(f.folders.len()!=0){p("Folders in save dir???")pe()}
+# Only delete saves that are NOT in the important saves list
 f.files.foreach("x"){if(!is.contains(x)){if(delfile("bis:/save/"+x)){p("File deletion failed: ", x)pe()}}}
-pr("Done!\nSetting up indexer save...")
-
-if(fsexists("bis:/save/"+is[0]))
-{
-	ba0=["BYTE[]",0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]
-	ba120=["BYTE[]",0x20,0x01,0x00,0x00,0x00,0x00,0x00,0x80]
-	ba53=["BYTE[]",0x53,0x00,0x00,0x00,0x00,0x00,0x00,0x80]
-	imen=["BYTE[]",0x49,0x4D,0x45,0x4E,0x40,0x00,0x00,0x00,0x40,0x00,0x00,0x00]
-
-	idb=["BYTE[]",0x49,0x4D,0x4B,0x56,0x00,0x00,0x00,0x00].copy() # imkv
-
-	skip53 = !fsexists("bis:/save/"+is[1])
-
-	if(skip53)
-	{
-		idb.add(0x01) # 0x01 imen
-		pr("053 save not found!!! Skip indexing it...")
-	}.else()
-	{
-		idb.add(0x02) # 0x02 imens
-	}
-
-	idb.add(0x00)
-	idb.add(0x00)
-	idb.add(0x00)
-
-	if(!skip53)
-	{
-		# 53 save
-		s=getfilesize("bis:/save/"+is[1])
-		s1=s&0xFF
-		s2=(s>>8)&0xFF
-		s3=(s>>16)&0xFF
-		s4=(s>>24)&0xFF
-		idb.addrange(imen)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba53)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba53)
-		idb.add(s1)
-		idb.add(s2)
-		idb.add(s3)
-		idb.add(s4)
-		idb.add(0x00)
-		idb.add(0x00)
-		idb.add(0x00)
-		idb.add(0x00)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-		idb.addrange(ba0)
-	}
-
-	# 120 save
-	s=getfilesize("bis:/save/"+is[0])
-	s1=s&0xFF
-	s2=(s>>8)&0xFF
-	s3=(s>>16)&0xFF
-	s4=(s>>24)&0xFF
-	idb.addrange(imen)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba120)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba120)
-	idb.add(s1)
-	idb.add(s2)
-	idb.add(s3)
-	idb.add(s4)
-	idb.add(0x00)
-	idb.add(0x00)
-	idb.add(0x00)
-	idb.add(0x00)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-	idb.addrange(ba0)
-
-	idxs=readsave("bis:/save/"+is[2])
-	if(idxs.resize("/imkvdb.arc",idb.len())){p("imkvdb resize failed")pe()}
-	if(idxs.write("/imkvdb.arc",idb)){p("imkvdb write failed")pe()}
-	if(idxs.resize("/lastPublishedId",ba0.len())){p("lastPublishedId resize failed")pe()}
-	if(idxs.write("/lastPublishedId",ba0)){p("lastPublishedId write failed")pe()}
-	if(idxs.commit()){p("Indexer save commit failed")pe()}
-	idxs=0
-	pr("Done!")
-}.else()
-{
-	pr("120 save not found!!! Skip editing indexer save!!!")
-}
+pr("Done!\nImportant system saves preserved.")
 
 pr("\nDeleting user dirs...")ud=["Album","Contents","save","saveMeta","temp"]
 if(mount("USER")){p("Mount failed!")pe()}
-ud.foreach("x"){pr("\n"+x,"")if(deldir("bis:/"+x)){p("Dir deletion failed")pe()}mkdir("bis:/"+x)}
+ud.foreach("x"){pr("\n"+x,"")deldir("bis:/"+x)mkdir("bis:/"+x)}
 mkdir("bis:/Contents/placehld")mkdir("bis:/Contents/registered")
-color(0x00FF00)p("\n\nDone!")pause()
+color(0x00FF00)
+p("\n\n========================================")
+p("\nSystem wipe completed successfully!")
+p("\nThe console is ready to boot.")
+p("\n========================================")
+pause()
