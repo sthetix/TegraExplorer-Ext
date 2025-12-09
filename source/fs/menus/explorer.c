@@ -25,7 +25,7 @@ MenuEntry_t topEntries[] = {
 
 MenuEntry_t MakeMenuOutFSEntry(FSEntry_t entry){
     MenuEntry_t out = {.name = entry.name, .sizeUnion = entry.sizeUnion};
-    out.optionUnion = (entry.isDir) ? COLORTORGB(COLOR_WHITE) : COLORTORGB(COLOR_VIOLET);
+    out.optionUnion = (entry.isDir) ? COLORTORGB(COLOR_WHITE) : COLORTORGB(COLOR_BLUE);
     out.icon = (entry.isDir) ? 127 : 128;
 
     return out;

@@ -22,7 +22,7 @@
 #include <mem/heap.h>
 #include "../fs/menus/filemenu.h"
 
-#define INCLUDE_BUILTIN_SCRIPTS 1
+//#define INCLUDE_BUILTIN_SCRIPTS 1
 //#define SCRIPT_ONLY 1
 
 #ifdef INCLUDE_BUILTIN_SCRIPTS
@@ -191,15 +191,16 @@ void EnterMainMenu(){
         #endif
         // -- Scripts --
         #ifndef INCLUDE_BUILTIN_SCRIPTS
-        mainMenuEntries[MainScripts].hide = (!sd_mounted || !FileExists("sd:/tegraexplorer/scripts"));
+        mainMenuEntries[MainScripts].hide = (!sd_mounted || (!FileExists("sd:/tegraexplorer/scripts") && !FileExists("sd:/scripts")));
         #else
-        mainMenuEntries[MainScripts].hide = ((!sd_mounted || !FileExists("sd:/tegraexplorer/scripts")) && !EMBEDDED_SCRIPTS_LEN);
+        mainMenuEntries[MainScripts].hide = ((!sd_mounted || (!FileExists("sd:/tegraexplorer/scripts") && !FileExists("sd:/scripts"))) && !EMBEDDED_SCRIPTS_LEN);
         #endif
 
         Vector_t ent = newVec(sizeof(MenuEntry_t), ARRAY_SIZE(mainMenuEntries));
         ent.count = ARRAY_SIZE(mainMenuEntries);
         memcpy(ent.data, mainMenuEntries, sizeof(MenuEntry_t) * ARRAY_SIZE(mainMenuEntries));
         Vector_t scriptFiles = {0};
+        Vector_t scriptFilesRoot = {0};
         u8 hasScripts = 0;
 
         #ifdef INCLUDE_BUILTIN_SCRIPTS
@@ -214,7 +215,6 @@ void EnterMainMenu(){
             if (!res){
                 if (!scriptFiles.count){
                     FREE(scriptFiles.data);
-                    mainMenuEntries[MainScripts].hide = 1;
                 }
                 else {
                     hasScripts = 1;
@@ -224,14 +224,33 @@ void EnterMainMenu(){
                             vecAdd(&ent, a);
                         }
                     }
+                }
+            }
+        }
 
-                    if (ent.count == ARRAY_SIZE(mainMenuEntries)){
-                        clearFileVector(&scriptFiles);
-                        hasScripts = 0;
-                        mainMenuEntries[MainScripts].hide = 1;
+        if (sd_mounted && FileExists("sd:/scripts")){
+            scriptFilesRoot = ReadFolder("sd:/scripts", &res);
+            if (!res){
+                if (!scriptFilesRoot.count){
+                    FREE(scriptFilesRoot.data);
+                }
+                else {
+                    hasScripts = 1;
+                    vecForEach(FSEntry_t*, scriptFile, (&scriptFilesRoot)){
+                        if (!scriptFile->isDir && StrEndsWith(scriptFile->name, ".te")){
+                            MenuEntry_t a = MakeMenuOutFSEntry(*scriptFile);
+                            vecAdd(&ent, a);
+                        }
                     }
                 }
             }
+        }
+
+        if (ent.count == ARRAY_SIZE(mainMenuEntries)){
+            if (scriptFiles.data) clearFileVector(&scriptFiles);
+            if (scriptFilesRoot.data) clearFileVector(&scriptFilesRoot);
+            hasScripts = 0;
+            mainMenuEntries[MainScripts].hide = 1;
         }
         
 
@@ -254,14 +273,34 @@ void EnterMainMenu(){
                 vecDefArray(MenuEntry_t*, entArray, ent);
                 MenuEntry_t entry = entArray[res];
                 FSEntry_t fsEntry = {.name = entry.name, .sizeUnion = entry.sizeUnion};
-                RunScript("sd:/tegraexplorer/scripts", fsEntry);
+                
+                // Check which folder the script is from
+                int scriptFound = 0;
+                if (scriptFiles.data) {
+                    vecForEach(FSEntry_t*, scriptFile, (&scriptFiles)){
+                        if (!scriptFile->isDir && strcmp(scriptFile->name, entry.name) == 0){
+                            RunScript("sd:/tegraexplorer/scripts", fsEntry);
+                            scriptFound = 1;
+                            break;
+                        }
+                    }
+                }
+                if (!scriptFound && scriptFilesRoot.data) {
+                    vecForEach(FSEntry_t*, scriptFile, (&scriptFilesRoot)){
+                        if (!scriptFile->isDir && strcmp(scriptFile->name, entry.name) == 0){
+                            RunScript("sd:/scripts", fsEntry);
+                            break;
+                        }
+                    }
+                }
             #ifdef INCLUDE_BUILTIN_SCRIPTS
             }
             #endif
         }
 
         if (hasScripts){
-            clearFileVector(&scriptFiles);
+            if (scriptFiles.data) clearFileVector(&scriptFiles);
+            if (scriptFilesRoot.data) clearFileVector(&scriptFilesRoot);
         }
 
         free(ent.data);
