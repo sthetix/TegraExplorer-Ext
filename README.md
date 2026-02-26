@@ -4,6 +4,10 @@
 [![Downloads](https://img.shields.io/github/downloads/sthetix/TegraExplorer/total)](https://github.com/sthetix/TegraExplorer/releases)
 [![Version](https://img.shields.io/github/v/release/sthetix/tegraexplorer)](https://github.com/sthetix/TegraExplorer/releases)
 
+<p align="center">
+  <img src="images/preview.jpg" width="65%">
+</p>
+
 A payload-based file explorer for your switch!
 
 ## Usage
