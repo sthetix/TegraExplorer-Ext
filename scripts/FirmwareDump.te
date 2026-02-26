@@ -2,108 +2,57 @@
 #REQUIRE SD
 p=println
 pe={pause() exit()}
-
-# Enhanced Firmware Dumper with Auto-Detection
-# Automatically detects firmware version based on SystemVersion NCA
-# Source: https://switchbrew.org/wiki/System_Version_Title
-p("Firmware Dumper with Auto-Detection")
-p()
+fwstr={fw=maj.str()+"."+min.str()+"."+pat.str()}
+fv={a=readsave("bis:/save/8000000000000120")
+	b=a.read("/meta/imkvdb.arc")
+	c=["BYTE[]",9,8,0,0,0,0,0,1]
+	d=b.find(c)
+	if(d>0){
+		e=b.slice(d+8,4).project()
+		ver=(e[3]<<24)|(e[2]<<16)|(e[1]<<8)|(e[0])
+		pat=((ver>>16)&((1<<4)- 1))
+		min=((ver>>20)&((1<<6)- 1))
+		maj=((ver>>26)&((1<<6)- 1))
+	}.else(){print("Fw not found")pe()}
+	a=0 fwstr()}
 
 op=["Exit","Dump sysmmc"].copy()
 if (emu()){op+"Dump emummc"}
-r=menu(op,0)clear()
+p()r=menu(op,0)clear()
 if(r==0){exit()}
+if(r==1){if(mountsys("SYSTEM")){print("SYSTEM MOUNT FAIL")pe()}}
+if(r==2){if(mountemu("SYSTEM")){print("SYSTEM MOUNT FAIL")pe()}}
+
 clear()
-p("Starting...")
-if(r==1){
-	p("Mounting sysmmc SYSTEM...")
-	if(mountsys("SYSTEM")){
-		print("SYSTEM MOUNT FAIL")
-		pe()
-	}
-	p("Mount successful")
-}
-if(r==2){
-	p("Mounting emummc SYSTEM...")
-	if(mountemu("SYSTEM")){
-		print("SYSTEM MOUNT FAIL")
-		pe()
-	}
-	p("Mount successful")
-}
-
-p("Preparing to dump firmware...")
-
-# Use fixed dump path - version detection no longer works on modern firmware
-bsp="sd:/tegraexplorer/Firmware/dump"
-p()
-
-# Read directory to get file list
-con=readdir("bis:/contents/registered")
-if(con.result!=0){
-	p("ERROR: Could not read registered folder")
-	p("Result code:",con.result)
-	pe()
-}
-
-p("Files found:",con.files.len())
-p("Folders found:",con.folders.len())
-p()
-
-p("Will dump to:",bsp)
-p()
-p("Press Power or A to continue, any other key to exit")
-a=pause()
-if(!a.a&&!a.power){exit()}
+fv()
+p("Found firmware",fw)
+p("Press Power or A to dump firmware, any other key to exit")
+a = pause()
+if (!a.a) {exit()}
 clear()
 
 mkdir("sd:/tegraexplorer")
 mkdir("sd:/tegraexplorer/Firmware")
-if(fsexists(bsp)){
-	p("Dump directory already exists!")
-	p("Press power to replace, any other key to exit")
-	a=pause()
-	if(!a.power){exit()}
-	deldir(bsp)
-}
+bsp="sd:/tegraexplorer/Firmware/"+fw
+if(fsexists(bsp)){p("Dir already exists! Press power to replace, any other key to exit") a=pause() if(!a.power){exit()} deldir(bsp)}
 mkdir(bsp)
 p("Dumping to",bsp)
-
+con=readdir("bis:/Contents/registered")
+if(con.result!=0){println("Fail reading dir")pe()}
 c=(con.files.len()+con.folders.len()).str()
-p("Total items:",c)
 i=1 f=0 t=timer()
-
 dump={
-	fi.foreach("y"){
-		if(f){
-			# For folders, append /00 to get actual NCA file
-			fp="bis:/contents/registered/"+y+"/00"
-			name=y+".nca"
-		}.else(){
-			# For files, use as-is
-			fp="bis:/contents/registered/"+y
-			name=y
-		}
-		ntype=ncatype(fp)
-		if(ntype==1){
-			# CNMT NCA - strip .nca and add .cnmt.nca
-			if(f){name=y+".cnmt.nca"}
-			.else(){name=name- 4+".cnmt.nca"}
-		}
+	fi.foreach("x"){
+		if(f){fp="bis:/Contents/registered/"+x+"/00"}
+		.else(){fp="bis:/Contents/registered/"+x}
+		name=x
+		if(ncatype(fp)==1){name=name- 4+".cnmt.nca"}
 		color(0x00FF00)
-		print("\r["+i.str()+"/"+c+"]",y)
-		cpres=copyfile(fp,bsp+"/"+name)
-		if(cpres){println("\nErr during copy")pe()}
+		print("\r["+i.str()+"/"+c+"]", x)
+		if(copyfile(fp,bsp+"/"+name)){println("\nErr during copy")pe()}
 		i=i+1
 	}
 }
-
-# Dump files first (if any exist)
 fi=con.files dump()
-# Then dump folders (NCAs stored as folder/00)
 f=1 fi=con.folders dump()
-
-color(0xFFFFFF)
-p("\nDone! Took",timer()-t/1000,"s")
-p("Firmware dumped to:",bsp)
-pause()
+p("\nDone! Took",timer()-t/1000,"s")pause()

@@ -1,9 +1,8 @@
 # TegraExplorer
 
-[![TegraExplorer builder](https://github.com/suchmememanyskill/TegraExplorer/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/suchmememanyskill/TegraExplorer/actions)
-[![Downloads](https://img.shields.io/github/downloads/suchmememanyskill/TegraExplorer/total)](https://github.com/suchmememanyskill/TegraExplorer/releases)
-[![Version](https://img.shields.io/github/v/release/suchmememanyskill/tegraexplorer)](https://github.com/suchmememanyskill/TegraExplorer/releases)
-[![Donations](https://img.shields.io/badge/Support%20on-Ko--Fi-red)](https://ko-fi.com/suchmememanyskill)
+[![TegraExplorer builder](https://github.com/sthetix/TegraExplorer/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/sthetix/TegraExplorer/actions)
+[![Downloads](https://img.shields.io/github/downloads/sthetix/TegraExplorer/total)](https://github.com/sthetix/TegraExplorer/releases)
+[![Version](https://img.shields.io/github/v/release/sthetix/tegraexplorer)](https://github.com/sthetix/TegraExplorer/releases)
 
 A payload-based file explorer for your switch!
 
@@ -45,9 +44,23 @@ If you do not have your joycons connected:
 
 For general CFW support, go to the [Nintendo Homebrew](https://discord.gg/C29hYvh) discord
 
-For question specifically for TegraExplorer, go to [my discord](https://discord.gg/aH9rsuP)
+## Changes in This Fork
+
+This is a modified version of TegraExplorer with custom enhancements:
+
+### Script Modifications
+- **SystemWipe.te**: Enhanced UI with flashing border animation, detailed warning screen, improved safety checks
+- **FirmwareDump.te**: Streamlined workflow with cleaner user interaction flow
+
+### Repository Independence
+- Completely separated from upstream repository
+- All embedded scripts regenerated from local source
+- No automatic syncing with original project
 
 ## Credits
+
+Original project by suchmememanyskill.
+
 Based on [Lockpick_RCM](https://github.com/shchmue/Lockpick_RCM), and thus also based on [Hekate](https://github.com/CTCaer/hekate)
 
 Awesome people who helped with this project:
