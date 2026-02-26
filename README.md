@@ -1,4 +1,4 @@
-# TegraExplorer
+# TegraExplorer-Ext
 
 [![TegraExplorer builder](https://github.com/sthetix/TegraExplorer-Ext/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/sthetix/TegraExplorer-Ext/actions)
 [![Downloads](https://img.shields.io/github/downloads/sthetix/TegraExplorer-Ext/total)](https://github.com/sthetix/TegraExplorer-Ext/releases)
@@ -72,10 +72,6 @@ If you do not have your joycons connected:
   Power off
 ```
 
-## Support
-
-For general CFW support, go to the [Nintendo Homebrew](https://discord.gg/C29hYvh) discord
-
 ## Changes in This Fork
 
 This is a modified version of TegraExplorer with custom enhancements:
@@ -133,3 +129,12 @@ Other awesome people:
 ![Screenshot 1](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot1.jpg)
 ![Screenshot 2](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot2.jpg)
 ![Screenshot 3](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot3.jpg)
+
+
+## Support My Work
+
+If you find this project useful, please consider supporting me by buying me a coffee!
+
+<a href="https://www.buymeacoffee.com/sthetixofficial" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
