@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/github/v/release/sthetix/tegraexplorer)](https://github.com/sthetix/TegraExplorer/releases)
 
 <p align="center">
-  <img src="images/preview.jpg" width="65%">
+  <img src="https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/preview.jpg">
 </p>
 
 A payload-based file explorer for your switch!
@@ -84,4 +84,6 @@ Other awesome people:
 
 ## Screenshots
 
-![Preview](/preview.png)
+![Screenshot 1](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot1.jpg)
+![Screenshot 2](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot2.jpg)
+![Screenshot 3](https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/screenshot3.jpg)
