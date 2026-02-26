@@ -1,8 +1,8 @@
 # TegraExplorer
 
-[![TegraExplorer builder](https://github.com/sthetix/TegraExplorer/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/sthetix/TegraExplorer/actions)
-[![Downloads](https://img.shields.io/github/downloads/sthetix/TegraExplorer/total)](https://github.com/sthetix/TegraExplorer/releases)
-[![Version](https://img.shields.io/github/v/release/sthetix/tegraexplorer)](https://github.com/sthetix/TegraExplorer/releases)
+[![TegraExplorer builder](https://github.com/sthetix/TegraExplorer-Ext/workflows/TegraExplorer%20builder/badge.svg)](https://github.com/sthetix/TegraExplorer-Ext/actions)
+[![Downloads](https://img.shields.io/github/downloads/sthetix/TegraExplorer-Ext/total)](https://github.com/sthetix/TegraExplorer-Ext/releases)
+[![Version](https://img.shields.io/github/v/release/sthetix/TegraExplorer-Ext)](https://github.com/sthetix/TegraExplorer-Ext/releases)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/sthetix/TegraExplorer-Ext/main/images/preview.jpg">
@@ -41,8 +41,36 @@ If you do not have your joycons connected:
 	- Creating folders
 - Dumping your current firmware to sd
 - Formatting the sd card
+- **Launch Lockpick_RCM** directly from the menu
 
 *and more*
+
+## Menu Structure
+
+```
+-- Explore --
+  Browse SD / Mount SD
+  Browse EMMC / Browse EMUMMC
+
+-- Tools --
+  Partition the sd
+  View dumped keys
+  Credits
+
+-- Load --
+  Load Lockpick_RCM
+
+-- Reboot --
+  Reboot to RCM
+  Reboot normally
+  Reboot to Hekate
+
+-- Scripts --
+  [Dynamic script files from SD card]
+
+-- Exit --
+  Power off
+```
 
 ## Support
 
@@ -51,6 +79,24 @@ For general CFW support, go to the [Nintendo Homebrew](https://discord.gg/C29hYv
 ## Changes in This Fork
 
 This is a modified version of TegraExplorer with custom enhancements:
+
+### UI/UX Improvements
+- **Updated color scheme** to match Lockpick_RCM Pro theme
+- **Reorganized main menu** structure for better navigation
+- **Turquoise headers** with soft white text for clean, minimal aesthetic
+
+### New Features
+- **Load Lockpick_RCM** - Launch Lockpick_RCM payloads directly from the menu
+  - Supports `Lockpick_RCM_Pro.bin` (HATS pack)
+  - Falls back to `Lockpick_RCM.bin`
+
+### Menu Reorganization
+- **Explore**: SD/MMC/EMUMMC browsing
+- **Tools**: Partition, keys, credits
+- **Load**: Lockpick_RCM launcher
+- **Reboot**: RCM, normal, Hekate
+- **Scripts**: Dynamic script loading from SD
+- **Exit**: Power off (red, at bottom)
 
 ### Script Modifications
 - **SystemWipe.te**: Enhanced UI with flashing border animation, detailed warning screen, improved safety checks
