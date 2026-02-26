@@ -42,39 +42,42 @@ enum {
     MainPartitionSd,
     MainViewKeys,
     MainViewCredits,
-    MainExit,
-    #else 
-    MainExit = 0,
+    MainLoad,
+    #else
+    MainLoad = 0,
     #endif
-    MainPowerOff,
+    MainLoadLockpick,
+    MainReboot,
     MainRebootRCM,
     MainRebootNormal,
     MainRebootHekate,
-    MainRebootAMS,
     MainScripts,
+    MainExit,
+    MainPowerOff,
 };
 
 MenuEntry_t mainMenuEntries[] = {
     #ifndef SCRIPT_ONLY
-    [MainExplore] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "-- Explore --"},
-    [MainBrowseSd] = {.optionUnion = COLORTORGB(COLOR_GREEN), .name = "Browse SD"},
-    [MainMountSd] = {.optionUnion = COLORTORGB(COLOR_YELLOW)}, // To mount/unmount the SD
-    [MainBrowseEmmc] = {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Browse EMMC"},
-    [MainBrowseEmummc] = {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Browse EMUMMC"},
-    [MainTools] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "\n-- Tools --"},
-    [MainPartitionSd] = {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Partition the sd"},
-    [MainViewKeys] = {.optionUnion = COLORTORGB(COLOR_YELLOW), .name = "View dumped keys"},
-    [MainViewCredits] = {.optionUnion = COLORTORGB(COLOR_YELLOW), .name = "Credits"},
-    [MainExit] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "\n-- Exit --"},
-    #else 
-    [MainExit] = {.optionUnion = COLORTORGB(COLOR_WHITE), .name = "\n-- Exit --"},
+    [MainExplore] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "-- Explore --"},
+    [MainBrowseSd] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Browse SD"},
+    [MainMountSd] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE)}, // To mount/unmount the SD
+    [MainBrowseEmmc] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Browse EMMC"},
+    [MainBrowseEmummc] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Browse EMUMMC"},
+    [MainTools] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "\n-- Tools --"},
+    [MainPartitionSd] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Partition the sd"},
+    [MainViewKeys] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "View dumped keys"},
+    [MainViewCredits] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Credits"},
+    [MainLoad] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "\n-- Load --"},
+    #else
+    [MainLoad] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "\n-- Load --"},
     #endif
-    [MainPowerOff] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Power off"},
-    [MainRebootRCM] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Reboot to RCM"},
-    [MainRebootNormal] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Reboot normally"},
-    [MainRebootHekate] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Reboot to bootloader/update.bin"},
-    [MainRebootAMS] = {.optionUnion = COLORTORGB(COLOR_VIOLET), .name = "Reboot to atmosphere/reboot_payload.bin"},
-    [MainScripts] = {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "\n-- Scripts --"}
+    [MainLoadLockpick] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Load Lockpick_RCM"},
+    [MainReboot] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "\n-- Reboot --"},
+    [MainRebootRCM] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Reboot to RCM"},
+    [MainRebootNormal] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Reboot normally"},
+    [MainRebootHekate] = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Reboot to Hekate"},
+    [MainScripts] = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "\n-- Scripts --"},
+    // MainExit and MainPowerOff are added dynamically after scripts
 };
 
 void HandleSD(){
@@ -135,12 +138,17 @@ extern bool sd_mounted;
 extern bool is_sd_inited;
 extern int launch_payload(char *path);
 
-void RebootToAMS(){
-    launch_payload("sd:/atmosphere/reboot_payload.bin");
-}
-
 void RebootToHekate(){
     launch_payload("sd:/bootloader/update.bin");
+}
+
+void LaunchLockpick(){
+    // Check for Lockpick_RCM_Pro.bin first (HATS pack uses this)
+    if (FileExists("sd:/bootloader/payloads/Lockpick_RCM_Pro.bin"))
+        launch_payload("sd:/bootloader/payloads/Lockpick_RCM_Pro.bin");
+    // Fallback to regular Lockpick_RCM.bin
+    else if (FileExists("sd:/bootloader/payloads/Lockpick_RCM.bin"))
+        launch_payload("sd:/bootloader/payloads/Lockpick_RCM.bin");
 }
 
 void MountOrUnmountSD(){
@@ -161,11 +169,11 @@ menuPaths mainMenuPaths[] = {
     [MainViewKeys] = ViewKeys,
     [MainViewCredits] = ViewCredits,
     #endif
-    [MainRebootAMS] = RebootToAMS,
+    [MainLoadLockpick] = LaunchLockpick,
     [MainRebootHekate] = RebootToHekate,
     [MainRebootRCM] = reboot_rcm,
-    [MainPowerOff] = power_off,
     [MainRebootNormal] = reboot_normal,
+    [MainPowerOff] = power_off,
 };
 
 void EnterMainMenu(){
@@ -184,8 +192,10 @@ void EnterMainMenu(){
         mainMenuEntries[MainPartitionSd].hide = (!is_sd_inited || sd_get_card_removed());
         mainMenuEntries[MainViewKeys].hide = !TConf.keysDumped;
 
-        // -- Exit --
-        mainMenuEntries[MainRebootAMS].hide = (!sd_mounted || !FileExists("sd:/atmosphere/reboot_payload.bin"));
+        // -- Load --
+        mainMenuEntries[MainLoadLockpick].hide = (!sd_mounted || (!FileExists("sd:/bootloader/payloads/Lockpick_RCM_Pro.bin") && !FileExists("sd:/bootloader/payloads/Lockpick_RCM.bin")));
+
+        // -- Reboot --
         mainMenuEntries[MainRebootHekate].hide = (!sd_mounted || !FileExists("sd:/bootloader/update.bin"));
         mainMenuEntries[MainRebootRCM].hide = h_cfg.t210b01;
         #endif
@@ -205,7 +215,7 @@ void EnterMainMenu(){
 
         #ifdef INCLUDE_BUILTIN_SCRIPTS
         for (int i = 0; i < EMBEDDED_SCRIPTS_LEN; i++){
-            MenuEntry_t m = {.name = embedded_scripts_g[i].name, .optionUnion = COLORTORGB(COLOR_BLUE), .icon = 128};
+            MenuEntry_t m = {.name = embedded_scripts_g[i].name, .optionUnion = COLORTORGB(COLOR_TURQUOISE), .icon = 128};
             vecAdd(&ent, m);
         }
         #endif
@@ -246,19 +256,34 @@ void EnterMainMenu(){
             }
         }
 
-        if (ent.count == ARRAY_SIZE(mainMenuEntries)){
+        // Add Exit and PowerOff AFTER all scripts (at the bottom)
+        MenuEntry_t exitHeader = {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "\n-- Exit --"};
+        vecAdd(&ent, exitHeader);
+        MenuEntry_t powerOffEntry = {.optionUnion = COLORTORGB(COLOR_RED), .name = "Power off"};
+        vecAdd(&ent, powerOffEntry);
+
+        // Check if any scripts were added (count would be > base + 2 if scripts exist)
+        if (!hasScripts){
+            mainMenuEntries[MainScripts].hide = 1;
             if (scriptFiles.data) clearFileVector(&scriptFiles);
             if (scriptFilesRoot.data) clearFileVector(&scriptFilesRoot);
-            hasScripts = 0;
-            mainMenuEntries[MainScripts].hide = 1;
         }
         
 
         gfx_clearscreen();
         gfx_putc('\n');
-        
-        res = newMenu(&ent, res, 79, 30, (ent.count == ARRAY_SIZE(mainMenuEntries)) ? ALWAYSREDRAW : ALWAYSREDRAW | ENABLEPAGECOUNT, ent.count - ARRAY_SIZE(mainMenuEntries));
-        if (res < MainScripts && mainMenuPaths[res] != NULL)
+
+        // Calculate base index for dynamic entries (Exit + PowerOff always at end)
+        u32 dynamicBase = ent.count - 2; // Exit header and PowerOff are last 2 entries
+        u32 baseCount = ARRAY_SIZE(mainMenuEntries) + 2; // Static entries + Exit + PowerOff
+
+        res = newMenu(&ent, res, 79, 30, (ent.count == baseCount) ? ALWAYSREDRAW : ALWAYSREDRAW | ENABLEPAGECOUNT, ent.count - baseCount);
+
+        // Handle Exit header (skip) and PowerOff (last entry)
+        if (res == dynamicBase + 1){ // PowerOff is at dynamicBase + 1
+            power_off();
+        }
+        else if (res < MainScripts && mainMenuPaths[res] != NULL)
             mainMenuPaths[res]();
         #ifndef INCLUDE_BUILTIN_SCRIPTS
         else if (hasScripts){
@@ -273,7 +298,7 @@ void EnterMainMenu(){
                 vecDefArray(MenuEntry_t*, entArray, ent);
                 MenuEntry_t entry = entArray[res];
                 FSEntry_t fsEntry = {.name = entry.name, .sizeUnion = entry.sizeUnion};
-                
+
                 // Check which folder the script is from
                 int scriptFound = 0;
                 if (scriptFiles.data) {

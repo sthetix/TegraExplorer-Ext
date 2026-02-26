@@ -32,7 +32,6 @@ void AddKey(u8 *buff, char *in, u32 len){
 }
 
 int GetKeysFromFile(char *path){
-    gfx_puts("Grabbing keys from prod.keys...");
     if (!sd_mount())
         return 1;
 
@@ -47,7 +46,6 @@ int GetKeysFromFile(char *path){
     AddKey(dumpedKeys.master_key, getKey("master_key_00", &iniList), AES_128_KEY_SIZE);
     AddKey(dumpedKeys.header_key, getKey("header_key", &iniList), AES_128_KEY_SIZE * 2);
     AddKey(dumpedKeys.save_mac_key, getKey("save_mac_key", &iniList), AES_128_KEY_SIZE);
-    
-    gfx_puts(" Done");
+
     return 0;
 }

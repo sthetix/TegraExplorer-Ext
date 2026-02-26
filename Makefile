@@ -11,12 +11,12 @@ include $(DEVKITARM)/base_rules
 IPL_LOAD_ADDR := 0x40008000
 LPVERSION_MAJOR := 4
 LPVERSION_MINOR := 2
-LPVERSION_BUGFX := 1
+LPVERSION_BUGFX := 2
 LPVERSION := \"$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX)\"
 
 ################################################################################
 
-TARGET := TegraExplorer
+TARGET := TegraExplorer-Ext
 BUILDDIR := build
 OUTPUTDIR := output
 SOURCEDIR = source
@@ -57,7 +57,7 @@ LDFLAGS = $(ARCH) -nostartfiles -lgcc -Wl,--nmagic,--gc-sections -Xlinker --defs
 
 .PHONY: all clean
 
-all: $(OUTPUTDIR)/$(TARGET)_small.bin
+all: $(OUTPUTDIR)/$(TARGET)_small.bin zip
 	$(eval BIN_SIZE = $(shell wc -c < $(OUTPUTDIR)/$(TARGET).bin))
 	@echo "Payload size is $(BIN_SIZE)"
 	$(eval COMPR_BIN_SIZE = $(shell wc -c < $(OUTPUTDIR)/$(TARGET)_small.bin))
@@ -66,6 +66,13 @@ all: $(OUTPUTDIR)/$(TARGET)_small.bin
 	@echo "Max size is 126296 Bytes."
 	@if [ ${BIN_SIZE} -gt 126296 ]; then echo "\e[1;33mPayload size exceeds limit!\e[0m"; fi
 	@if [ ${COMPR_BIN_SIZE} -gt 126296 ]; then echo "\e[1;33mCompressed Payload size exceeds limit!\e[0m"; fi
+
+zip: $(OUTPUTDIR)/$(TARGET)_small.bin
+	@mkdir -p $(OUTPUTDIR)/zip_temp/bootloader/payloads
+	@cp $(OUTPUTDIR)/$(TARGET)_small.bin $(OUTPUTDIR)/zip_temp/bootloader/payloads/$(TARGET).bin
+	@cd $(OUTPUTDIR)/zip_temp && zip -r ../$(TARGET)-$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX).zip bootloader
+	@rm -rf $(OUTPUTDIR)/zip_temp
+	@echo "Created $(OUTPUTDIR)/$(TARGET)-$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX).zip"
 
 clean:
 	@rm -rf $(BUILDDIR)

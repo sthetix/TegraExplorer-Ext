@@ -17,10 +17,10 @@
 #include "../utils/utils.h"
 
 MenuEntry_t GptMenuHeader[] = {
-    {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "<- Back"},
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "<- Back"},
     {.optionUnion = COLORTORGB(COLOR_GREY) | SKIPBIT, .name = "Clipboard -> Partition\n"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "BOOT0", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2}, 
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "BOOT1", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2} 
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "BOOT0", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "BOOT1", .icon = 128, .showSize = 1, .size = 4, .sizeDef = 2}
 };
 
 const char *GptFSEntries[] = {
@@ -34,7 +34,7 @@ void GptMenu(u8 MMCType){
     if (connectMMC(MMCType))
         return;
 
-    GptMenuHeader[1].optionUnion = (TConf.explorerCopyMode == CMODE_Copy) ? (COLORTORGB(COLOR_ORANGE)) : (COLORTORGB(COLOR_GREY) | SKIPBIT);
+    GptMenuHeader[1].optionUnion = (TConf.explorerCopyMode == CMODE_Copy) ? (COLORTORGB(COLOR_TURQUOISE)) : (COLORTORGB(COLOR_GREY) | SKIPBIT);
 
     Vector_t GptMenu = newVec(sizeof(MenuEntry_t), 15);
     GptMenu.count = ARR_LEN(GptMenuHeader);
@@ -43,7 +43,7 @@ void GptMenu(u8 MMCType){
     link_t *gpt = GetCurGPT();
 
     LIST_FOREACH_ENTRY(emmc_part_t, part, gpt, link) {
-        MenuEntry_t entry = {.optionUnion = COLORTORGB(COLOR_VIOLET), .icon = 128, .name = part->name};
+        MenuEntry_t entry = {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .icon = 128, .name = part->name};
         u64 total = (part->lba_end - part->lba_start) / 2 + 1;
         u8 type = 1;
         while (total > 1024){
@@ -60,7 +60,7 @@ void GptMenu(u8 MMCType){
 
         for (int i = 0; i < ARR_LEN(GptFSEntries); i++){
             if (!strcmp(part->name, GptFSEntries[i])){
-                entry.optionUnion = COLORTORGB(COLOR_WHITE);
+                entry.optionUnion = COLORTORGB(COLOR_SOFT_WHITE);
                 entry.icon = 127;
                 break;
             }

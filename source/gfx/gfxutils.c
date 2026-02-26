@@ -11,17 +11,17 @@ void gfx_printTopInfo() {
 
     int current_charge_status = 0;
 	bq24193_get_property(BQ24193_ChargeStatus, &current_charge_status);
-    SETCOLOR(COLOR_DEFAULT, COLOR_WHITE);
+    SETCOLOR(COLOR_CYAN, COLOR_BARS);
     gfx_con_setpos(0, 0);
-    gfx_printf("Tegraexplorer %d.%d.%d | Battery: %d%% %c\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8, ((current_charge_status) ? 129 : 32));
+    gfx_printf("TegraExplorer-Ext %d.%d.%d | Battery: %d%% %c\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8, ((current_charge_status) ? 129 : 32));
     RESETCOLOR;
 }
 
 void gfx_clearscreen(){
     gfx_boxGrey(0, 16, 1279, 703, 0x1b);
 
-    gfx_boxGrey(0, 703, 1279, 719, 0xFF);
-    gfx_boxGrey(0, 0, 1279, 15, 0xFF);
+    gfx_boxGrey(0, 703, 1279, 719, 0x3D);
+    gfx_boxGrey(0, 0, 1279, 15, 0x3D);
 
 
     gfx_printTopInfo();

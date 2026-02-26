@@ -281,19 +281,53 @@ void ipl_main()
 
 	int res = -1;
 
-	if (btn_read() & BTN_VOL_DOWN || DumpKeys())
-		res = GetKeysFromFile("sd:/switch/prod.keys");
+	// Force reading from prod.keys file instead of hardware derivation
+	// This ensures save_mac_key is loaded correctly
+	res = GetKeysFromFile("sd:/switch/prod.keys");
+
+	// Fallback to hardware derivation only if file reading fails
+	if (res != 0) {
+		DumpKeys();
+	}
 
 	TConf.keysDumped = (res > 0) ? 0 : 1;
 
-	if (res > 0)
-		DrawError(newErrCode(TE_ERR_KEYDUMP_FAIL));
-	
 	if (TConf.keysDumped)
 		SetKeySlots();
-	
-	if (res == 0)
+
+	// Show key status splash screen with centered box
+	#define SPLASH_LX 256
+	#define SPLASH_LY 240
+	#define SPLASH_LENX 768
+	#define SPLASH_LENY 200
+
+	if (res == 0) {
+		// Keys found - show welcome message in cyan
+		gfx_box(SPLASH_LX, SPLASH_LY, SPLASH_LX + SPLASH_LENX, SPLASH_LY + SPLASH_LENY, COLOR_CYAN);
+		gfx_boxGrey(SPLASH_LX + 16, SPLASH_LY + 16, SPLASH_LX + SPLASH_LENX - 16, SPLASH_LY + SPLASH_LENY - 16, 0x33);
+
+		SETCOLOR(COLOR_CYAN, COLOR_DARKGREY);
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 16 * 16) / 2, SPLASH_LY + 55);
+		gfx_printf("prod.keys found!\n");
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 27 * 16) / 2, SPLASH_LY + 88);
+		gfx_printf("Welcome to TegraExplorer-Ext\n");
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 19 * 16) / 2, SPLASH_LY + SPLASH_LENY - 40);
+		gfx_printf("Press A to continue");
 		hidWait();
+	} else {
+		// Keys not found - show helpful message
+		gfx_box(SPLASH_LX, SPLASH_LY, SPLASH_LX + SPLASH_LENX, SPLASH_LY + SPLASH_LENY, COLOR_RED);
+		gfx_boxGrey(SPLASH_LX + 16, SPLASH_LY + 16, SPLASH_LX + SPLASH_LENX - 16, SPLASH_LY + SPLASH_LENY - 16, 0x33);
+
+		SETCOLOR(COLOR_RED, COLOR_DARKGREY);
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 21 * 16) / 2, SPLASH_LY + 50);
+		gfx_printf("prod.keys not found\n\n");
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 33 * 16) / 2, SPLASH_LY + 82);
+		gfx_printf("Please dump keys using Lockpick_RCM\n\n\n");
+		gfx_con_setpos(SPLASH_LX + (SPLASH_LENX - 19 * 16) / 2, SPLASH_LY + SPLASH_LENY - 40);
+		gfx_printf("Press A to continue");
+		hidWait();
+	}
 
 	if (FileExists("sd:/startup.te"))
 		RunScript("sd:/", newFSEntry("startup.te"));

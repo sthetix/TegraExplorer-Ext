@@ -21,9 +21,9 @@ int GetNcaType(char *path){
         return -1;
     }
 
-    se_aes_xts_crypt(7,6,0,1, dec_header + 0x200, dec_header, 32, 1);
+    se_aes_xts_crypt(7, 6, 0, 1, dec_header, dec_header, 32, 1);
 
-    u8 ContentType = dec_header[0x205];
+    u8 ContentType = dec_header[0x5];
     
     f_close(&fp);
     free(dec_header);

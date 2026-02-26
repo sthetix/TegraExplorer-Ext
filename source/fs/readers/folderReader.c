@@ -35,7 +35,7 @@ Vector_t /* of type FSEntry_t */ ReadFolder(const char *path, int *res){
             if (type > 3)
                 type = 3;
 
-            newEntry.showSize = 1;
+            // newEntry.showSize = 1; // Disabled - size display looks cosmeticall weird
             newEntry.size = total;
             newEntry.sizeDef = type;
         }

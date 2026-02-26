@@ -17,15 +17,15 @@
 #include "foldermenu.h"
 
 MenuEntry_t topEntries[] = {
-    {.optionUnion = COLORTORGB(COLOR_GREEN) | SKIPBIT},
-    {.optionUnion = COLORTORGB(COLOR_ORANGE)},
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE)},
     {.optionUnion = COLORTORGB(COLOR_GREY) | SKIPBIT, .name = "Clipboard -> Current folder"},
-    {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Current folder options"}
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "Current folder options"}
 };
 
 MenuEntry_t MakeMenuOutFSEntry(FSEntry_t entry){
     MenuEntry_t out = {.name = entry.name, .sizeUnion = entry.sizeUnion};
-    out.optionUnion = (entry.isDir) ? COLORTORGB(COLOR_WHITE) : COLORTORGB(COLOR_BLUE);
+    out.optionUnion = (entry.isDir) ? COLORTORGB(COLOR_SOFT_WHITE) : COLORTORGB(COLOR_SOFT_WHITE);
     out.icon = (entry.isDir) ? 127 : 128;
 
     return out;
@@ -41,7 +41,7 @@ void FileExplorer(char *path){
         ResetCopyParams();
 
     while (1){
-        topEntries[2].optionUnion = (TConf.explorerCopyMode != CMODE_None) ? (COLORTORGB(COLOR_ORANGE)) : (COLORTORGB(COLOR_GREY) | SKIPBIT);
+        topEntries[2].optionUnion = (TConf.explorerCopyMode != CMODE_None) ? (COLORTORGB(COLOR_TURQUOISE)) : (COLORTORGB(COLOR_GREY) | SKIPBIT);
         topEntries[1].name = (!strcmp(storedPath, path)) ? "<- Exit explorer" : "<- Folder back";
 
         gfx_clearscreen();

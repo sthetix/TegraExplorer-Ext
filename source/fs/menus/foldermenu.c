@@ -15,16 +15,16 @@
 #include "../fscopy.h"
 
 MenuEntry_t FolderMenuEntries[] = {
-    {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "-- Folder menu --"},
-    {.optionUnion = COLORTORGB(COLOR_GREEN) | SKIPBIT}, // For the file name and size
-    {.optionUnion = COLORTORGB(COLOR_VIOLET) | SKIPBIT}, // For the file Attribs
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "-- Folder menu --"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE) | SKIPBIT}, // For the file name and size
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE) | SKIPBIT}, // For the file Attribs
     {.optionUnion = HIDEBIT},
-    {.optionUnion = COLORTORGB(COLOR_WHITE), .name = "<- Back"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "\nCopy to clipboard"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Move to clipboard"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Rename current folder\n"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "<- Back"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "\nCopy to clipboard"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Move to clipboard"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Rename current folder\n"},
     {.optionUnion = COLORTORGB(COLOR_RED), .name = "Delete current folder"},
-    {.optionUnion = COLORTORGB(COLOR_GREEN), .name = "\nCreate folder"}
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "\nCreate folder"}
 };
 
 int UnimplementedFolderException(const char *path){

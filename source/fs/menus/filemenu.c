@@ -19,18 +19,18 @@
 
 
 MenuEntry_t FileMenuEntries[] = {
-    {.optionUnion = COLORTORGB(COLOR_WHITE) | SKIPBIT, .name = "-- File menu --"},
-    {.optionUnion = COLORTORGB(COLOR_GREEN) | SKIPBIT}, // For the file name and size
-    {.optionUnion = COLORTORGB(COLOR_VIOLET) | SKIPBIT}, // For the file Attribs
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE) | SKIPBIT, .name = "-- File menu --"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE) | SKIPBIT}, // For the file name and size
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE) | SKIPBIT}, // For the file Attribs
     {.optionUnion = HIDEBIT},
-    {.optionUnion = COLORTORGB(COLOR_WHITE), .name = "<- Back"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "\nCopy to clipboard"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Move to clipboard"},
-    {.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Rename file\n"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "<- Back"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "\nCopy to clipboard"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Move to clipboard"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Rename file\n"},
     {.optionUnion = COLORTORGB(COLOR_RED), .name = "Delete file"},
-    {.optionUnion = COLORTORGB(COLOR_GREEN), .name = "View hex"},
-    {.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Launch Payload"},
-    {.optionUnion = COLORTORGB(COLOR_YELLOW), .name = "Launch Script"},
+    {.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "View hex"},
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "Launch Payload"},
+    {.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "Launch Script"},
 };
 
 

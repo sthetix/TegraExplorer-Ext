@@ -24,9 +24,9 @@ extern sdmmc_storage_t sd_storage;
 extern bool is_sd_inited;
 
 MenuEntry_t FatAndEmu[] = {
-	{.optionUnion = COLORTORGB(COLOR_ORANGE), .name = "Back to main menu"},
-	{.optionUnion = COLORTORGB(COLOR_GREEN), .name = "Fat32 + EmuMMC"},
-	{.optionUnion = COLORTORGB(COLOR_BLUE), .name = "Only Fat32"}
+	{.optionUnion = COLORTORGB(COLOR_TURQUOISE), .name = "Back to main menu"},
+	{.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Fat32 + EmuMMC"},
+	{.optionUnion = COLORTORGB(COLOR_SOFT_WHITE), .name = "Only Fat32"}
 };
 
 void FormatSD(){
@@ -65,7 +65,7 @@ void FormatSD(){
 	gfx_printf("\n\nAre you sure you want to format your sd?\nThis will delete everything on your SD card!\nThis action is irreversible!\n\n");
 	WaitFor(1500);
 
-	gfx_printf("%kAre you sure?   ", COLOR_WHITE);
+	gfx_printf("%kAre you sure?   ", COLOR_SOFT_WHITE);
 	if (!MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
 		return;
 	}

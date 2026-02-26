@@ -157,16 +157,39 @@ ClassFunction(stdMountEmummc){
 
 // Takes [str]. Returns int (0=success) str=path to save
 ClassFunction(stdMountSave){
-	
+
 	Variable_t *arg = (*args);
 	Variable_t var = {.variableType = SaveClass};
 	SaveClass_t* save = calloc(1, sizeof(SaveClass_t));
-	if (f_open(&save->saveFile, arg->string.value, FA_READ | FA_WRITE))
+
+	// Debug: Check if save_mac_key is loaded
+	u8 zero_key[16] = {0};
+	if (memcmp(dumpedKeys.save_mac_key, zero_key, 16) == 0) {
+		gfx_printf("ERROR: save_mac_key is all zeros!\n");
+		gfx_printf("Keys were not loaded correctly.\n");
+		gfx_printf("\nPress any button to continue...\n");
+		hidWait();
 		return NULL;
+	}
+
+	if (f_open(&save->saveFile, arg->string.value, FA_READ | FA_WRITE)) {
+		gfx_printf("ERROR: Failed to open save file: %s\n", arg->string.value);
+		gfx_printf("\nPress any button to continue...\n");
+		hidWait();
+		return NULL;
+	}
+
 	save_init(&save->saveCtx, &save->saveFile, dumpedKeys.save_mac_key, 0);
-	if (!save_process(&save->saveCtx))
+	if (!save_process(&save->saveCtx)) {
+		gfx_printf("ERROR: save_process failed\n");
+		gfx_printf("This usually means save_mac_key is incorrect\n");
+		gfx_printf("or the save file format is unsupported\n");
+		gfx_printf("\nPress any button to continue...\n");
+		hidWait();
+		f_close(&save->saveFile);
 		return NULL;
-	
+	}
+
 	var.save = save;
 	return copyVariableToPtr(var);
 }
