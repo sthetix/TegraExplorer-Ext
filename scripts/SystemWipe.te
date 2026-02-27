@@ -108,6 +108,10 @@ if (!result.power)
 }
 
 clear()
+println("")
+println("")
+println("")
+println("")
 color(0xFF0000)
 pr("Deleting system saves... ")
 f=readdir("bis:/save")

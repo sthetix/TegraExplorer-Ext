@@ -241,6 +241,10 @@ if (useSys){
 }
 
 clear()
+println("")
+println("")
+println("")
+println("")
 p("Switch System Restore")
 if (bootBisFound){
 	p("Target:", bisName)
@@ -274,6 +278,10 @@ if ((res == 2) || (res == 3)){
 }
 
 clear()
+println("")
+println("")
+println("")
+println("")
 p("Switch System Restore")
 color(0xFF00)
 

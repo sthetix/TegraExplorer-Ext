@@ -28,6 +28,10 @@ if(r==1){if(mountsys("SYSTEM")){print("SYSTEM MOUNT FAIL")pe()}}
 if(r==2){if(mountemu("SYSTEM")){print("SYSTEM MOUNT FAIL")pe()}}
 
 clear()
+println("")
+println("")
+println("")
+println("")
 fv()
 p("Found firmware",fw)
 p("Press Power or A to dump firmware, any other key to exit")
