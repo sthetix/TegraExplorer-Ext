@@ -21,3 +21,4 @@ void gfx_clearscreen();
 int MakeHorizontalMenu(MenuEntry_t *entries, int len, int spacesBetween, u32 bg, int startPos);
 int MakeYesNoHorzMenu(int spacesBetween, u32 bg);
 void gfx_printTopInfo();
+void gfx_printBottomInfo(int page, int total_pages, int total_entries);

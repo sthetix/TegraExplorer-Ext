@@ -8,6 +8,7 @@
 #include "../tegraexplorer/tools.h"
 #include <display/di.h>
 #include "../config.h"
+#include <stdlib.h>
 
 static Input_t inputs = {0};
 u16 LbaseX = 0, LbaseY = 0, RbaseX = 0, RbaseY = 0;
@@ -45,15 +46,11 @@ Input_t *hidRead(){
     inputs.power = (btn & BTN_POWER) ? 1 : 0;
 
     if (left_connected){
-        if ((LbaseX == 0 || LbaseY == 0) || controller->l3){
-            LbaseX = controller->lstick_x;
-            LbaseY = controller->lstick_y;
-        }
-
-        inputs.up = (controller->up || inputs.volp || (controller->lstick_y > LbaseY + 500)) ? 1 : 0;
-        inputs.down = (controller->down || inputs.volm || (controller->lstick_y < LbaseY - 500)) ? 1 : 0;
-        inputs.left = (controller->left || (controller->lstick_x < LbaseX - 500)) ? 1 : 0;
-        inputs.right = (controller->right || (controller->lstick_x > LbaseX + 500)) ? 1 : 0;
+        // Analog sticks disabled - use D-pad only to avoid drift issues
+        inputs.up = (controller->up || inputs.volp) ? 1 : 0;
+        inputs.down = (controller->down || inputs.volm) ? 1 : 0;
+        inputs.left = controller->left ? 1 : 0;
+        inputs.right = controller->right ? 1 : 0;
     }
     else {
         inputs.up = inputs.volp;

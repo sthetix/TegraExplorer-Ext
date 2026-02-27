@@ -4,16 +4,37 @@
 #include <power/max17050.h>
 #include <power/bq24193.h>
 #include "../hid/hid.h"
+#include <utils/sprintf.h>
+#include <string.h>
 
 void gfx_printTopInfo() {
-    int battery = 0;
-    max17050_get_property(MAX17050_RepSOC, &battery);
-
-    int current_charge_status = 0;
-	bq24193_get_property(BQ24193_ChargeStatus, &current_charge_status);
     SETCOLOR(COLOR_CYAN, COLOR_BARS);
     gfx_con_setpos(0, 0);
-    gfx_printf("TegraExplorer-Ext %d.%d.%d | Battery: %d%% %c\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF, battery >> 8, ((current_charge_status) ? 129 : 32));
+    gfx_printf("TegraExplorer-Ext %d.%d.%d", LP_VER_MJ, LP_VER_MN, LP_VER_BF);
+    RESETCOLOR;
+}
+
+void gfx_printBottomInfo(int page, int total_pages, int total_entries) {
+    int battery = 0;
+    max17050_get_property(MAX17050_RepSOC, &battery);
+    int current_charge_status = 0;
+    bq24193_get_property(BQ24193_ChargeStatus, &current_charge_status);
+
+    SETCOLOR(COLOR_SOFT_WHITE, COLOR_BARS);
+
+    // Build info string grouped together
+    char info[64];
+    s_printf(info, "Battery: %d%% | Page %d/%d | %d Entries", battery >> 8, page, total_pages, total_entries);
+
+    // Fixed center position based on actual text length
+    // Text is ~38 chars, screen is 1280px, center is ~640
+    // Using the menu's char width multiplier (18) for better positioning
+    int str_len = strlen(info);
+    int x_pos = (1280 - str_len * 18) / 2;
+    if (x_pos < 0) x_pos = 0;
+
+    gfx_con_setpos(x_pos, 704);
+    gfx_puts(info);
     RESETCOLOR;
 }
 

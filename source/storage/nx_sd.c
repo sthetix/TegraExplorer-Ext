@@ -104,8 +104,10 @@ bool sd_initialize(bool power_cycle)
 		sdmmc_storage_end(&sd_storage);
 
 	int res = !sd_init_retry(false);
+	u32 retry_count = 0;
+	const u32 max_retries = 10; // Limit retries to prevent infinite loop
 
-	while (true)
+	while (retry_count < max_retries)
 	{
 		if (!res)
 			return true;
@@ -123,6 +125,7 @@ bool sd_initialize(bool power_cycle)
 			else
 				res = !sd_init_retry(true);
 		}
+		retry_count++;
 	}
 
 	sdmmc_storage_end(&sd_storage);

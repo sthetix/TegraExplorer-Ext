@@ -137,7 +137,8 @@ int emummc_storage_init_mmc(sdmmc_storage_t *storage, sdmmc_t *sdmmc)
 	emu_cfg.active_part = 0;
 
 	// Always init eMMC even when in emuMMC. eMMC is needed from the emuMMC driver anyway.
-	if (!sdmmc_storage_init_mmc(storage, sdmmc, SDMMC_BUS_WIDTH_8, SDHCI_TIMING_MMC_HS400))
+	// Use HS52 timing instead of HS400 for better compatibility and less freeze risk
+	if (!sdmmc_storage_init_mmc(storage, sdmmc, SDMMC_BUS_WIDTH_8, SDHCI_TIMING_MMC_HS52))
 		return 2;
 
 	if (!emu_cfg.enabled || h_cfg.emummc_force_disable)

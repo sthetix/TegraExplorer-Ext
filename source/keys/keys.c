@@ -23,9 +23,11 @@
 #include "../config.h"
 #include "../storage/emummc.h"
 #include "../gfx/gfx.h"
+#include "../gfx/gfxutils.h"
 #include "../tegraexplorer/tconf.h"
 #include "../storage/mountmanager.h"
 #include "../storage/nx_emmc.h"
+#include "../hid/hid.h"
 
 #include "key_sources.inl"
 
@@ -123,7 +125,13 @@ static void _derive_bis_keys(key_derivation_ctx_t *keys) {
     if (key_generation)
         key_generation--;
 
-    if (!(_key_exists(keys->device_key) || (key_generation && _key_exists(keys->master_key) && _key_exists(keys->device_key_4x)))) {
+    // Check if we have the keys needed for BIS derivation
+    // For Erista: device_key from keyblobs, or master_key + device_key_4x
+    // For Mariko: always needs master_key + device_key_4x (key_generation can be 0)
+    bool has_erista_keys = _key_exists(keys->device_key);
+    bool has_mariko_keys = _key_exists(keys->master_key) && _key_exists(keys->device_key_4x);
+
+    if (!has_erista_keys && !has_mariko_keys) {
         return;
     }
     _get_device_key(8, keys->temp_key, key_generation, keys->device_key, keys->device_key_4x, keys->master_key);
@@ -259,10 +267,92 @@ static ALWAYS_INLINE u8 *_read_pkg1() {
 
 key_derivation_ctx_t __attribute__((aligned(4))) dumpedKeys = {0};
 
-int DumpKeys(){
-    if (h_cfg.t210b01) // i'm not even attempting to dump on mariko
-        return 2;
+// ==================== Mariko Key Derivation ====================
 
+// Key derivation constants
+#define DECRYPT 0
+#define ENCRYPT 1
+#define KS_AES_ECB  8
+#define KS_MARIKO_KEK 12
+#define KS_SECURE_BOOT 14
+
+static inline void _load_aes_key(u32 ks, void *out_key, const void *access_key, const void *key_source) {
+    // Match DowngradeFixer's load_aes_key exactly
+    se_aes_key_set(ks, access_key, AES_128_KEY_SIZE);
+    se_aes_crypt_block_ecb(ks, DECRYPT, out_key, key_source);
+}
+
+static void _derive_master_keys_mariko(key_derivation_ctx_t *keys) {
+    minerva_periodic_training();
+
+    // Derive device_key_4x from SBK (slot 14, pre-loaded by bootloader)
+    se_aes_crypt_block_ecb(KS_SECURE_BOOT, DECRYPT, keys->device_key_4x, device_master_key_source_kek_source);
+
+    // Derive master_key for 6.0.0 from Mariko KEK (slot 12, pre-loaded by bootloader)
+    // This is the earliest master_key derivable on Mariko
+    u8 master_kek_600[AES_128_KEY_SIZE];
+    u8 master_key_600[AES_128_KEY_SIZE];
+    se_aes_crypt_block_ecb(KS_MARIKO_KEK, DECRYPT, master_kek_600, mariko_master_kek_sources[0]);
+    _load_aes_key(KS_AES_ECB, master_key_600, master_kek_600, master_key_source);
+
+    if (!_key_exists(master_key_600)) {
+        memset(keys->master_key, 0, AES_128_KEY_SIZE);
+        return;
+    }
+
+    // Derive master_key_00 by stepping down through master_key_vectors chain.
+    // On Erista, master_key_00 comes directly from keyblob 0. On Mariko there are no
+    // keyblobs, so we derive it by reversing the chain:
+    //   master_key_vectors[i] = encrypt(master_key[i-1], master_key[i])
+    //   => decrypt(master_key_vectors[i], master_key[i]) = master_key[i-1]
+    u8 current_key[AES_128_KEY_SIZE];
+    memcpy(current_key, master_key_600, AES_128_KEY_SIZE);
+
+    for (int i = KB_FIRMWARE_VERSION_600; i >= 1; i--) {
+        se_aes_key_set(KS_AES_ECB, current_key, AES_128_KEY_SIZE);
+        se_aes_crypt_block_ecb(KS_AES_ECB, DECRYPT, current_key, master_key_vectors[i]);
+    }
+
+    // Store master_key_00 - this is what _derive_bis_keys and _derive_misc_keys need
+    // (device_master_kek_sources are all wrapped with master_key_00)
+    memcpy(keys->master_key, current_key, AES_128_KEY_SIZE);
+}
+
+static int _derive_mariko_keys(key_derivation_ctx_t *keys) {
+    // Check if SBK is available (should be pre-loaded by bootloader)
+    u8 *aes_keys = (u8 *)calloc(0x1000, 1);
+    se_get_aes_keys(aes_keys + 0x800, aes_keys, AES_128_KEY_SIZE);
+    memcpy(keys->sbk, aes_keys + 14 * AES_128_KEY_SIZE, AES_128_KEY_SIZE);
+    free(aes_keys);
+
+    if (!_key_exists(keys->sbk))
+        return 1;
+
+    // Derive master_key_00, device_key_4x
+    _derive_master_keys_mariko(keys);
+
+    // Derive BIS keys and misc keys
+    _derive_bis_keys(keys);
+    _derive_misc_keys(keys);
+
+    if (!_key_exists(keys->master_key) &&
+        !_key_exists(keys->bis_key[0]) &&
+        !_key_exists(keys->header_key)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+// ==================== Main Key Dumping Function ====================
+
+int DumpKeys(){
+    // Mariko key derivation
+    if (h_cfg.t210b01) {
+        return _derive_mariko_keys(&dumpedKeys);
+    }
+
+    // Erista key derivation (original code)
     u8 *pkg1 = _read_pkg1();
     if (!pkg1) {
         return 1;
@@ -273,7 +363,7 @@ int DumpKeys(){
     tsec_ctxt_t tsec_ctxt;
     tsec_ctxt.pkg1 = pkg1;
     res =_derive_tsec_keys(&tsec_ctxt, &dumpedKeys);
-    
+
     free(pkg1);
     if (res == false) {
         return 1;
@@ -283,7 +373,7 @@ int DumpKeys(){
         return 1;
     _derive_bis_keys(&dumpedKeys);
     _derive_misc_keys(&dumpedKeys);
-    
+
 
     return 0;
 }
@@ -292,4 +382,18 @@ void PrintKey(u8 *key, u32 len){
     for (int i = 0; i < len; i++){
         gfx_printf("%02x", key[i]);
     }
+}
+
+// Check if any keys were successfully derived
+int ValidateKeys() {
+    // Check if at least one critical key exists (not all zeros)
+    // Uses same check as _key_exists (first 8 bytes non-zero)
+    if (_key_exists(dumpedKeys.bis_key[0]) ||
+        _key_exists(dumpedKeys.bis_key[1]) ||
+        _key_exists(dumpedKeys.bis_key[2]) ||
+        _key_exists(dumpedKeys.master_key) ||
+        _key_exists(dumpedKeys.header_key)) {
+        return 0; // Keys are valid
+    }
+    return 1; // All keys are zero/invalid
 }

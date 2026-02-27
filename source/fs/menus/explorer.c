@@ -67,8 +67,10 @@ void FileExplorer(char *path){
             vecAddElem(&entries, a);
         }
 
-        gfx_con_setpos(144, 24);
         gfx_boxGrey(0, 16, 160, 31, 0x1B);
+        gfx_con_setpos(0, 40);
+        gfx_printf("-- SD CARD --");
+        gfx_con_setpos(10, 65);
 
         if (res >= fileVec.count + ARR_LEN(topEntries))
             res = 0;

@@ -101,11 +101,30 @@ void HandleEMUMMC(){
 
 void ViewKeys(){
     gfx_clearscreen();
+
+    // Check if keys are actually valid before displaying
+    extern int ValidateKeys();
+    if (ValidateKeys() != 0) {
+        gfx_printf("\n%kNo keys dumped!\n\n", COLOR_RED);
+        if (h_cfg.t210b01) {
+            gfx_printf("%kMariko key derivation requires:%k\n", COLOR_ORANGE, COLOR_WHITE);
+            gfx_printf("- Launch from hekate 5.7.0+ or\n");
+            gfx_printf("- Atmosphere 1.5.0+ with proper key loading\n\n");
+            gfx_printf("%kOr place prod.keys in sd:/switch/%k\n\n", COLOR_ORANGE, COLOR_WHITE);
+        } else {
+            gfx_printf("%kErista key derivation failed.\n", COLOR_ORANGE);
+            gfx_printf("Try placing prod.keys in sd:/switch/%k\n\n", COLOR_WHITE);
+        }
+        gfx_printf("Press any key to exit...");
+        hidWait();
+        return;
+    }
+
     for (int i = 0; i < 3; i++){
         gfx_printf("\nBis key 0%d:   ", i);
         PrintKey(dumpedKeys.bis_key[i], AES_128_KEY_SIZE * 2);
     }
-    
+
     gfx_printf("\nMaster key 0: ");
     PrintKey(dumpedKeys.master_key, AES_128_KEY_SIZE);
     gfx_printf("\nHeader key:   ");
@@ -119,14 +138,16 @@ void ViewKeys(){
             fuseCount++;
     }
 
-    gfx_printf("\n\nPkg1 ID: '%s'\nFuse count: %d", TConf.pkg1ID, fuseCount);
+    if (TConf.pkg1ID && strcmp(TConf.pkg1ID, "Unk") != 0)
+        gfx_printf("\n\nPkg1 ID: '%s'", TConf.pkg1ID);
+    gfx_printf("\nFuse count: %d", fuseCount);
 
     hidWait();
 }
 
 void ViewCredits(){
     gfx_clearscreen();
-    gfx_printf("\nTegraexplorer v%d.%d.%d\nBy SuchMemeManySkill\n\nBased on Lockpick_RCM & Hekate, from shchmue & CTCaer\n\n\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF);
+    gfx_printf("\nTegraexplorer v%d.%d.%d\nOriginal by SuchMemeManySkill\nModifications by sthetix\n\nBased on Lockpick_RCM & Hekate, from shchmue & CTCaer\n\n\n", LP_VER_MJ, LP_VER_MN, LP_VER_BF);
 
     if (hidRead()->r)
         gfx_printf("%k\"I'm not even sure if it works\" - meme", COLOR_ORANGE);
@@ -190,7 +211,8 @@ void EnterMainMenu(){
 
         // -- Tools --
         mainMenuEntries[MainPartitionSd].hide = (!is_sd_inited || sd_get_card_removed());
-        mainMenuEntries[MainViewKeys].hide = !TConf.keysDumped;
+        // Always show View Keys so user can see what's happening (even if keys failed)
+        mainMenuEntries[MainViewKeys].hide = false;
 
         // -- Load --
         mainMenuEntries[MainLoadLockpick].hide = (!sd_mounted || (!FileExists("sd:/bootloader/payloads/Lockpick_RCM_Pro.bin") && !FileExists("sd:/bootloader/payloads/Lockpick_RCM.bin")));

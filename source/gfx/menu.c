@@ -69,14 +69,6 @@ int newMenu(Vector_t* vec, int startIndex, int screenLenX, int screenLenY, u8 op
     while(1) {
         u32 lastDraw = get_tmr_ms();
         if (redrawScreen || options & ALWAYSREDRAW){
-            if (options & ENABLEPAGECOUNT){
-                SETCOLOR(COLOR_CYAN, COLOR_BARS);
-                char temp[40] = "";
-                s_printf(temp, " Page %d / %d | Total %d entries", (selected / screenLenY) + 1, ((vec->count - 1) / screenLenY) + 1, entryCount);
-                gfx_con_setpos(YLEFT - strlen(temp) * 18, 0);
-                gfx_printf(temp);
-            }
-
             gfx_con_setpos(startX, startY);
 
             if (redrawScreen){
@@ -104,10 +96,12 @@ int newMenu(Vector_t* vec, int startIndex, int screenLenX, int screenLenY, u8 op
 
         lastIndex = selected;
 
-        SETCOLOR(COLOR_CYAN, COLOR_BARS);
-        gfx_con_setpos(0, 704);
-        gfx_printf("Time taken for screen draw: %dms  ", get_tmr_ms() - lastDraw);
-        
+        // Show battery, page info, entries count on bottom bar
+        int current_page = (selected / screenLenY) + 1;
+        int total_pages = ((vec->count - 1) / screenLenY) + 1;
+        gfx_printBottomInfo(current_page, total_pages, entryCount);
+
+
         while(hidRead()){
             if (!(input->buttons)){
                 holdTimer = 300;

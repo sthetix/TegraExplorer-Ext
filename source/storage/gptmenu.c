@@ -73,8 +73,9 @@ void GptMenu(u8 MMCType){
     int res = 0;
     while (1){
         gfx_clearscreen();
-        gfx_printf((MMCType == MMC_CONN_EMMC) ? "-- Emmc --\n\n" : "-- Emummc --\n\n");
-
+        gfx_con_setpos(0, 25);
+        gfx_printf((MMCType == MMC_CONN_EMMC) ? "-- EMMC --" : "-- EMUMMC --");
+        gfx_con_setpos(10, 50); // Reset cursor for menu position
         res = newMenu(&GptMenu, res, 40, 20, ALWAYSREDRAW | ENABLEB, GptMenu.count);
 
         if (res < 1){
