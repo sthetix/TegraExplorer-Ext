@@ -5,6 +5,10 @@ is=["8000000000000120","80000000000000d1","8000000000000047"]
 p=println
 pr=print
 pe={pause() exit()}
+println("")
+println("")
+println("")
+println("")
 p("System wiper\n")
 op=["Exit","Wipe sysmmc"].copy()
 if (emu()){op+"Wipe emummc"}
