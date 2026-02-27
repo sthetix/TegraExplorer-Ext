@@ -9,6 +9,7 @@ println("")
 println("")
 println("")
 println("")
+color(0x00CCCCCC)
 p("System wiper\n")
 op=["Exit","Wipe sysmmc"].copy()
 if (emu()){op+"Wipe emummc"}

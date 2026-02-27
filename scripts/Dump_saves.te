@@ -6,6 +6,7 @@ println("")
 println("")
 println("")
 println("")
+color(0x00CCCCCC)
 
 partNames = ["SYSTEM", "USER"]
 menuOptions = ["Exit"].copy()

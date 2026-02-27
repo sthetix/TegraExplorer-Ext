@@ -56,7 +56,7 @@ readBisAttrs = {
 extractBis = {
 	color(0xFF0000)
 	p("Extracting boot.bis...")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	i = 0
 	files = ["BOOT0.bin", "BOOT1.bin", "BCPKG2-1-Normal-Main", "BCPKG2-3-SafeMode-Main"]
 	
@@ -87,7 +87,7 @@ bisFiles = ["BOOT0.bin", "BOOT1.bin", "BCPKG2-1-Normal-Main", "BCPKG2-2-Normal-S
 backupBis = {
 	color(0xFF0000)
 	p("Backing up BIS...")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	
 	mkdir(combinepath(cwd(), "backup"))
 	path = combinepath(cwd(), "backup", "bis")
@@ -105,7 +105,7 @@ backupBis = {
 backupSys = {
 	color(0xFF0000)
 	p("Backing up SYSTEM...")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	
 	mkdir(combinepath(cwd(), "backup"))
 	path = combinepath(cwd(), "backup", "system")
@@ -129,7 +129,7 @@ backupSys = {
 signSave = {
 	color(0xFF0000)
 	p("Signing save...")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	if (mount("SYSTEM")){
 		fatal(fatalMsg = "Failed to mount SYSTEM")
 	}
@@ -143,7 +143,7 @@ signSave = {
 writeBis = {
 	color(0xFF0000)
 	p("Writing BIS...")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	toRestore = bisFiles.copy()
 	toRestore - 1
 	toRestore.foreach("x"){
@@ -163,7 +163,7 @@ writeSys = {
 	
 	color(0xFF0000)
 	print("Deleting SYSTEM contents... ")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	if (deldir("bis:/Contents/registered")){
 		fatal(fatalMsg = "An error occured during SYSTEM deletion!")
 	}
@@ -171,7 +171,7 @@ writeSys = {
 	
 	color(0xFF0000)
 	print("Copying registered... ")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	if (copydir(combinepath(cwd(), "SYSTEM/Contents/registered"), "bis:/Contents")) {
 		fatal(fatalMsg = "An error occured during SYSTEM copying!")
 	}
@@ -179,7 +179,7 @@ writeSys = {
 	
 	color(0xFF0000)
 	print("Copying 120 save... ")
-	color(0xFFFFFF)
+	color(0x00CCCCCC)
 	if (copyfile(combinepath(cwd(), "SYSTEM/save/8000000000000120"), "bis:/save/8000000000000120")) {
 		fatal(fatalMsg = "Failed to copy system save")
 	}
@@ -294,13 +294,13 @@ if (useSys){
 p("Restore BIS:", restoreBis)
 p("Restore SYSTEM:", restoreSystem)
 p("Restoring onto:", mmcStr)
-color(0xFFFFFF)
+color(0x00CCCCCC)
 p("Ready!")
 color(0xE70000) 
 print("WARNING!!!\nIf you do not know exactly what this does. STOP!!!\nThis will fuck with your system!\nOnly do this as a last ditch recovery effort!\n") 
 color(0x40FF00) 
 p("For help go here: https://discord.gg/C29hYvh\n") 
-color(0xFFFFFF)
+color(0x00CCCCCC)
 wait(tw = 10000)
 p("Press Power to start the restore, any other key to exit")
 if (!pause().power){
