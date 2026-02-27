@@ -69,8 +69,10 @@ all: $(OUTPUTDIR)/$(TARGET)_small.bin zip
 
 zip: $(OUTPUTDIR)/$(TARGET)_small.bin
 	@mkdir -p $(OUTPUTDIR)/zip_temp/bootloader/payloads
+	@mkdir -p $(OUTPUTDIR)/zip_temp/scripts
 	@cp $(OUTPUTDIR)/$(TARGET)_small.bin $(OUTPUTDIR)/zip_temp/bootloader/payloads/$(TARGET).bin
-	@cd $(OUTPUTDIR)/zip_temp && zip -r ../$(TARGET)-$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX).zip bootloader
+	@cp scripts/*.te $(OUTPUTDIR)/zip_temp/scripts/
+	@cd $(OUTPUTDIR)/zip_temp && zip -r ../$(TARGET)-$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX).zip bootloader scripts
 	@rm -rf $(OUTPUTDIR)/zip_temp
 	@echo "Created $(OUTPUTDIR)/$(TARGET)-$(LPVERSION_MAJOR).$(LPVERSION_MINOR).$(LPVERSION_BUGFX).zip"
 
