@@ -1,7 +1,10 @@
 #REQUIRE KEYS
 # Important saves that must be preserved to prevent bricking
-# Only these 3 saves should be preserved - DO NOT add more!
-is=["8000000000000120","80000000000000d1","8000000000000047"]
+# - 8000000000000120: Content meta database (required for boot)
+# - 8000000000000053: DeviceSettings (battery calibration, IMPORTANT for lite)
+# - 80000000000000d1: System save
+# The index save (8000000000000000) is DELETED to let system rebuild fresh
+is=["8000000000000120","8000000000000053","80000000000000d1"]
 p=println
 pr=print
 pe={pause() exit()}
@@ -55,11 +58,11 @@ y_pos = 12
 	print(line)
 }
 
-if (!fsexists("bis:/save/"+is[0]))
-{
+# Check for content meta database (required for boot)
+if (!fsexists("bis:/save/"+is[0])){
 	[
 		"",
-		"WARNING: Indexer save (8000000000000120) is missing!",
+		"WARNING: Content meta database (8000000000000120) is missing!",
 		"Cannot safely wipe without this save!",
 		"System will brick if you continue!"
 	].foreach("line")
@@ -73,6 +76,21 @@ if (!fsexists("bis:/save/"+is[0]))
 	print("Press any button to exit")
 	pause()
 	exit()
+}
+
+# Check for DeviceSettings save (battery calibration, important for lite)
+if (!fsexists("bis:/save/"+is[1])){
+	[
+		"",
+		"WARNING: DeviceSettings save (8000000000000053) is missing!",
+		"Battery calibration will be reset to defaults.",
+		"This is UNSAFE for lite systems!"
+	].foreach("line")
+	{
+		printpos(x_pos, y_pos)
+		y_pos = y_pos + 1
+		print(line)
+	}
 }
 
 time = 5000
