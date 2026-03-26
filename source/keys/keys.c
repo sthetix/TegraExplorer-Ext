@@ -318,6 +318,22 @@ static void _derive_master_keys_mariko(key_derivation_ctx_t *keys) {
     memcpy(keys->master_key, current_key, AES_128_KEY_SIZE);
 }
 
+static void _derive_key_area_keys(key_derivation_ctx_t *keys) {
+    if (!_key_exists(keys->master_key))
+        return;
+
+    for (u32 i = 0; i < 3; i++) {
+        /* Derive key_area_key[flavor][gen=0] from master_key (generation 0).
+         * Pattern: master_key -> unwrap(aes_kek_generation_source) -> unwrap(kak_source[i])
+         *          -> decrypt(aes_key_generation_source) -> key_area_key
+         * Keyslot 8 (KS_AES_ECB) matches the pattern used by _derive_misc_keys(). */
+        se_aes_key_set(8, keys->master_key, AES_128_KEY_SIZE);
+        se_aes_unwrap_key(8, 8, aes_kek_generation_source);
+        se_aes_unwrap_key(8, 8, key_area_key_sources[i]);
+        se_aes_crypt_block_ecb(8, 0, keys->key_area_key[i][0], aes_key_generation_source);
+    }
+}
+
 static int _derive_mariko_keys(key_derivation_ctx_t *keys) {
     // Check if SBK is available (should be pre-loaded by bootloader)
     u8 *aes_keys = (u8 *)calloc(0x1000, 1);
@@ -343,22 +359,6 @@ static int _derive_mariko_keys(key_derivation_ctx_t *keys) {
     }
 
     return 0;
-}
-
-static void _derive_key_area_keys(key_derivation_ctx_t *keys) {
-    if (!_key_exists(keys->master_key))
-        return;
-
-    for (u32 i = 0; i < 3; i++) {
-        /* Derive key_area_key[flavor][gen=0] from master_key (generation 0).
-         * Pattern: master_key -> unwrap(aes_kek_generation_source) -> unwrap(kak_source[i])
-         *          -> decrypt(aes_key_generation_source) -> key_area_key
-         * Keyslot 8 (KS_AES_ECB) matches the pattern used by _derive_misc_keys(). */
-        se_aes_key_set(8, keys->master_key, AES_128_KEY_SIZE);
-        se_aes_unwrap_key(8, 8, aes_kek_generation_source);
-        se_aes_unwrap_key(8, 8, key_area_key_sources[i]);
-        se_aes_crypt_block_ecb(8, 0, keys->key_area_key[i][0], aes_key_generation_source);
-    }
 }
 
 // ==================== Main Key Dumping Function ====================
