@@ -23,6 +23,13 @@ void SetKeySlots(){
         se_aes_key_set(6, dumpedKeys.header_key + 0x00, 0x10);
         se_aes_key_set(7, dumpedKeys.header_key + 0x10, 0x10);
         se_aes_key_set(8, dumpedKeys.save_mac_key, 0x10);
+
+        /* key_area_key slots for NCA section decryption (Phase 4).
+         * Generation 0 covers the vast majority of firmware NCAs.
+         * flavor 0 = Application, 1 = Ocean, 2 = System */
+        se_aes_key_set(9,  dumpedKeys.key_area_key[0][0], AES_128_KEY_SIZE);
+        se_aes_key_set(10, dumpedKeys.key_area_key[1][0], AES_128_KEY_SIZE);
+        se_aes_key_set(11, dumpedKeys.key_area_key[2][0], AES_128_KEY_SIZE);
     }
 }
 
