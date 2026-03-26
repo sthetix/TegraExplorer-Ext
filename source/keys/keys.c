@@ -334,6 +334,7 @@ static int _derive_mariko_keys(key_derivation_ctx_t *keys) {
     // Derive BIS keys and misc keys
     _derive_bis_keys(keys);
     _derive_misc_keys(keys);
+    _derive_key_area_keys(keys);
 
     if (!_key_exists(keys->master_key) &&
         !_key_exists(keys->bis_key[0]) &&
@@ -342,6 +343,22 @@ static int _derive_mariko_keys(key_derivation_ctx_t *keys) {
     }
 
     return 0;
+}
+
+static void _derive_key_area_keys(key_derivation_ctx_t *keys) {
+    if (!_key_exists(keys->master_key))
+        return;
+
+    for (u32 i = 0; i < 3; i++) {
+        /* Derive key_area_key[flavor][gen=0] from master_key (generation 0).
+         * Pattern: master_key -> unwrap(aes_kek_generation_source) -> unwrap(kak_source[i])
+         *          -> decrypt(aes_key_generation_source) -> key_area_key
+         * Keyslot 8 (KS_AES_ECB) matches the pattern used by _derive_misc_keys(). */
+        se_aes_key_set(8, keys->master_key, AES_128_KEY_SIZE);
+        se_aes_unwrap_key(8, 8, aes_kek_generation_source);
+        se_aes_unwrap_key(8, 8, key_area_key_sources[i]);
+        se_aes_crypt_block_ecb(8, 0, keys->key_area_key[i][0], aes_key_generation_source);
+    }
 }
 
 // ==================== Main Key Dumping Function ====================
@@ -373,7 +390,7 @@ int DumpKeys(){
         return 1;
     _derive_bis_keys(&dumpedKeys);
     _derive_misc_keys(&dumpedKeys);
-
+    _derive_key_area_keys(&dumpedKeys);
 
     return 0;
 }
