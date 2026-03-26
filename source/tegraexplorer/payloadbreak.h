@@ -12,3 +12,5 @@ extern pb_state_t pb_state;
 int        PayloadBreakSelectMMC(void);
 ErrCode_t  PayloadBreakMountSystem(void);
 void       PayloadBreakCleanup(void);
+ErrCode_t  PayloadBreakWriteBoot0(const char *srcPath);
+ErrCode_t  PayloadBreakWriteBcpkg2(const char *srcPath);
