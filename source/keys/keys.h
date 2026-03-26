@@ -83,7 +83,8 @@ typedef struct {
         // master key-derived families,
         master_kek[AES_128_KEY_SIZE],
         master_key[AES_128_KEY_SIZE],
-        tsec_keys[AES_128_KEY_SIZE * 2];
+        tsec_keys[AES_128_KEY_SIZE * 2],
+        key_area_key[3][KB_FIRMWARE_VERSION_MAX + 1][AES_128_KEY_SIZE];
     u32 sbk[4];
     keyblob_t keyblob;
 } key_derivation_ctx_t;
