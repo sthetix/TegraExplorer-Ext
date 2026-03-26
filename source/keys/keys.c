@@ -414,3 +414,15 @@ int ValidateKeys() {
     }
     return 1; // All keys are zero/invalid
 }
+
+// Check if key_area_key derivation succeeded for all three flavors (generation 0).
+// Returns 0 if all three flavors are non-zero (derivation succeeded).
+// Returns 1 if any flavor is zero (derivation was skipped or failed).
+int ValidateKeyAreaKeys() {
+    if (_key_exists(dumpedKeys.key_area_key[0][0]) &&
+        _key_exists(dumpedKeys.key_area_key[1][0]) &&
+        _key_exists(dumpedKeys.key_area_key[2][0])) {
+        return 0; // All key_area_key flavors are valid
+    }
+    return 1; // At least one flavor is zero/invalid
+}
