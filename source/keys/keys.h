@@ -108,6 +108,7 @@ typedef struct _tsec_key_data_t
 
 int DumpKeys();
 void PrintKey(u8 *key, u32 len);
-int ValidateKeys(); // Check if dumped keys are valid (not all zeros)
+int ValidateKeys();         // Check if dumped keys are valid (not all zeros)
+int ValidateKeyAreaKeys();  // Check if key_area_key[0/1/2][gen=0] are all non-zero
 
 extern key_derivation_ctx_t __attribute__((aligned(4))) dumpedKeys;
