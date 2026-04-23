@@ -126,6 +126,7 @@ void GptMenu(u8 MMCType){
                 continue;
 
             gfx_clearscreen();
+            gfx_con_setpos(0, 16);
             gfx_printf("Do you want to dump %s?  ", entries[res].name);
             if (MakeYesNoHorzMenu(3, COLOR_DEFAULT)){
                 gfx_putc('\n');

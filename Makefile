@@ -59,13 +59,13 @@ LDFLAGS = $(ARCH) -nostartfiles -lgcc -Wl,--nmagic,--gc-sections -Xlinker --defs
 
 all: $(OUTPUTDIR)/$(TARGET)_small.bin zip
 	$(eval BIN_SIZE = $(shell wc -c < $(OUTPUTDIR)/$(TARGET).bin))
-	@echo "Payload size is $(BIN_SIZE)"
+	@echo "Uncompressed payload size is $(BIN_SIZE)"
 	$(eval COMPR_BIN_SIZE = $(shell wc -c < $(OUTPUTDIR)/$(TARGET)_small.bin))
-	@echo "Compressed Payload size is $(COMPR_BIN_SIZE)"
+	@echo "RCM payload size is $(COMPR_BIN_SIZE)"
 
 	@echo "Max size is 126296 Bytes."
-	@if [ ${BIN_SIZE} -gt 126296 ]; then echo "\e[1;33mPayload size exceeds limit!\e[0m"; fi
-	@if [ ${COMPR_BIN_SIZE} -gt 126296 ]; then echo "\e[1;33mCompressed Payload size exceeds limit!\e[0m"; fi
+	@if [ ${BIN_SIZE} -gt 126296 ] && [ ${COMPR_BIN_SIZE} -le 126296 ]; then echo "\e[1;33mNote: only the uncompressed intermediate exceeds the limit; the shipped RCM payload is within spec.\e[0m"; fi
+	@if [ ${COMPR_BIN_SIZE} -gt 126296 ]; then echo "\e[1;33mRCM payload exceeds limit!\e[0m"; fi
 
 zip: $(OUTPUTDIR)/$(TARGET)_small.bin
 	@mkdir -p $(OUTPUTDIR)/zip_temp/bootloader/payloads

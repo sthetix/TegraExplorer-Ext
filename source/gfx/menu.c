@@ -55,6 +55,13 @@ int newMenu(Vector_t* vec, int startIndex, int screenLenX, int screenLenY, u8 op
     u32 startX = 0, startY = 0;
     gfx_con_getpos(&startX, &startY);
 
+    // Keep menus inside the drawable area so long lists don't wrap to the top.
+    int maxRows = (703 - (int)startY) / 16;
+    if (maxRows < 1)
+        maxRows = 1;
+    if (screenLenY > maxRows)
+        screenLenY = maxRows;
+
     u32 bgColor = (options & USELIGHTGREY) ? COLOR_DARKGREY : COLOR_DEFAULT;
 
 
